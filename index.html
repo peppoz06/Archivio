@@ -16,9 +16,11 @@
         const newUrl = window.location.pathname + (newSearch ? '?' + newSearch : '');
         history.replaceState({}, '', newUrl);
       } else {
-        const path = window.location.pathname || '/';
-        // Redirect when visiting site root or explicit index.html path
-        const isIndexPath = path === '/' || path === '' || path.endsWith('/index.html') || path === '/index.html' || path === 'index.html';
+    const path = window.location.pathname || '/';
+    // Redirect when visiting site root, a directory index (path ending with '/'),
+    // or explicit index.html path. This handles GitHub Pages project pages like
+    // '/Archivio/' where pathname ends with '/'.
+    const isIndexPath = path === '/' || path === '' || path.endsWith('/') || path.endsWith('/index.html') || path === '/index.html' || path === 'index.html';
         if (isIndexPath) {
           window.location.replace('landing.html');
         }
