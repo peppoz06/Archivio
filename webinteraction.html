@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Face tracking</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* On this interaction page show only the camera button. Keep scripts visible. */
+    /* Show only the interaction wrapper and the camera container. */
+    body > :not(script):not(#cameraWrapper):not(#container) { display: none !important; }
+
+  /* Camera wrapper sits at top portion and does not fill the whole viewport */
+  #cameraWrapper { min-height: 12vh; display: flex; align-items: center; justify-content: center; z-index: 3; position: relative; padding-top: 18px; }
+    #cameraToggle { font-size: 16px; padding: 10px 14px; }
+
+    /* Container holds the video and canvas layers; center the media inside it */
+  /* Container is pushed down so it does not overlap the title/button */
+  #container { position: relative; min-height: 70vh; display: flex; align-items: center; justify-content: center; margin-top: 12vh; }
+    /* The visible framed box that contains the webcam media */
+    .webcam-frame {
+      position: absolute;
+      left: 50%;
+      top: 40%; /* moved up from 50% to position the frame higher in the container */
+      transform: translate(-50%, -50%);
+      max-width: 90vw;
+      max-height: 80vh;
+      width: 960px;
+      height: 720px;
+      border: 6px solid rgba(228,228,228,0.95);
+      border-radius: 14px;
+      box-shadow: 0 12px 32px rgba(0,0,0,0.35);
+      overflow: hidden;
+      background: #000;
+    }
+
+    /* Make video and canvas fill the frame exactly */
+    .cam-layer { position: absolute; left: 0; top: 0; width: 100%; height: 100%; transform: none; object-fit: cover; }
+    #webcam { z-index: 0; display: block; }
+    #canvas { z-index: 1; pointer-events: none; display: block; }
+    /* Force-hide any residual textual tracking UI on this minimal page */
+    #faceList, #handList, #status, .face-info, .hand-info, .feature-info, #info { display: none !important; }
+  </style>
+<body>
+  <!-- hand-pose-detection (tfjs) and MediaPipe runtime for hands -->
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/hand-pose-detection@0.0.7/dist/hand-pose-detection.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1645985860/hands.js"></script>
+</head>
+
+<body>
+<script type="module" src="natale-lm.js"></script>
+
+  <!-- Minimal interaction: only the camera button is visible -->
+  <div id="cameraWrapper">
+    <button id="cameraToggle" class="camera-btn link-style" disabled>Enable Camera</button>
+    <!-- Back to gallery (same look & placement as About page) -->
+    <a href="index.html?from=interaction" class="back-to-gallery">Back to gallery</a>
+  </div>
+
+    <div id="container">
+      <div class="webcam-frame" id="webcamFrame">
+        <video id="webcam" class="cam-layer" autoplay muted playsinline></video>
+        <canvas id="canvas" class="cam-layer"></canvas>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-core@4.11.0"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-converter@4.11.0"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-webgl@4.11.0"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh@0.4.1633559619"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/face-landmarks-detection@1.0.2"></script>
+  <!-- Hand detection (optional). If unavailable, finger interactions fall back to mouse testing. -->
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/handpose@0.0.7"></script>
+
+   
+</body>
+</html>
