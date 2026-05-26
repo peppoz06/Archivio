@@ -6,25 +6,46 @@
     <title>Archivio</title>
     <link rel="stylesheet" href="style.css" />
     <script>
-      // If the user arrived from the landing page (has ?from=landing), do not redirect.
-      // Remove the query param so a later refresh will show landing again.
-      const params = new URLSearchParams(window.location.search);
-      if (params.get('from') === 'landing') {
-        // remove the param without navigating
-        params.delete('from');
-        const newSearch = params.toString();
-        const newUrl = window.location.pathname + (newSearch ? '?' + newSearch : '');
-        history.replaceState({}, '', newUrl);
-      } else {
-    const path = window.location.pathname || '/';
-    // Redirect when visiting site root, a directory index (path ending with '/'),
-    // or explicit index.html path. This handles GitHub Pages project pages like
-    // '/Archivio/' where pathname ends with '/'.
-    const isIndexPath = path === '/' || path === '' || path.endsWith('/') || path.endsWith('/index.html') || path === '/index.html' || path === 'index.html';
-        if (isIndexPath) {
-          window.location.replace('landing.html');
+      // Redirect to landing.html only for direct visits to the site root from an external
+      // origin and when there's no explicit `from` query parameter.
+      // If the user comes from an internal page (document.referrer same origin) or a
+      // `from` param is present, do not redirect so "Back to gallery" reliably returns
+      // to this index page.
+      (function(){
+        try {
+          const params = new URLSearchParams(window.location.search);
+          const hasFrom = params.toString() !== '' && params.has('from');
+
+          // If there is a `from` param, remove it from the URL but do not redirect.
+          if (hasFrom) {
+            try { params.delete('from'); } catch (e) {}
+            const newSearch = params.toString();
+            const newUrl = window.location.pathname + (newSearch ? '?' + newSearch : '');
+            history.replaceState({}, '', newUrl);
+            return; // don't redirect
+          }
+
+          // If the referrer is from the same origin (i.e. user navigated from another
+          // page in this site), do not redirect.
+          const ref = document.referrer;
+          if (ref) {
+            try {
+              const refUrl = new URL(ref);
+              if (refUrl.origin === location.origin) return; // internal navigation -> no redirect
+            } catch (e) { /* ignore invalid referrer parsing */ }
+          }
+
+          const path = window.location.pathname || '/';
+          const isIndexPath = path === '/' || path === '' || path.endsWith('/') || path.endsWith('/index.html') || path === '/index.html' || path === 'index.html';
+          if (isIndexPath) {
+            // final redirect for true direct visits
+            window.location.replace('landing.html');
+          }
+        } catch (e) {
+          // If anything goes wrong, avoid breaking the page and do not redirect.
+          console.warn('Redirect check failed:', e && e.message);
         }
-      }
+      })();
     </script>
   </head>
   <body>
