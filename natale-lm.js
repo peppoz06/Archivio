@@ -404,7 +404,7 @@ function drawHandLandmarks(keypoints, color) {
              }
          );
          
-         setStatus("Model loaded! Click 'Start Camera'");
+    setStatus("Model loaded! Starting camera...");
          // If the visible button is missing, create it under #cameraWrapper or body
          try {
              if (!startBtn) {
@@ -431,7 +431,7 @@ function drawHandLandmarks(keypoints, color) {
             console.warn('Handpose model not available:', e && e.message);
             handModel = null;
         }
-        // then try the newer tfjs hand-pose-detection MediaPipe Hands detector (preferred)
+         // then try the newer tfjs hand-pose-detection MediaPipe Hands detector (preferred)
         try {
             if (window.handPoseDetection && handPoseDetection.createDetector) {
                 handDetector = await handPoseDetection.createDetector(
@@ -454,6 +454,31 @@ function drawHandLandmarks(keypoints, color) {
          console.error(error);
      }
  }
+
+// After models are loaded, attempt to auto-start the camera. This may prompt the user for
+// camera permission. If the browser blocks autoplay or permission is denied, the page will
+// show the status message and the start button (if present) remains as a fallback.
+async function tryAutoStartCamera() {
+    try {
+        // small delay to ensure UI updates
+        await new Promise(r => setTimeout(r, 120));
+        // only attempt if camera isn't already running
+        if (!isDetecting && video && typeof startCamera === 'function') {
+            try {
+                await startCamera();
+                console.log('Auto-started camera');
+                setStatus('Camera started automatically');
+            } catch (e) {
+                console.warn('Auto-start camera failed (permission?):', e && e.message);
+                setStatus('Click to enable camera (permission required)');
+                // ensure fallback button is enabled if present
+                try { if (startBtn) { startBtn.disabled = false; startBtn.textContent = 'Enable Camera'; startBtn.addEventListener('click', startCamera); } } catch (ee) {}
+            }
+        }
+    } catch (e) {
+        console.warn('Auto-start logic failed', e && e.message);
+    }
+}
 
  // Start the webcam
  async function startCamera() {
@@ -936,6 +961,8 @@ if (toggleNumbers) {
 
  // Load model when page loads
  loadModel();
+// Attempt to auto-start camera after models are loaded
+tryAutoStartCamera();
 
 // Debug: allow clicking the canvas to force Asx1 overlay (useful when hand model isn't detecting)
 try {

@@ -12,7 +12,6 @@
 
   /* Camera wrapper sits at top portion and does not fill the whole viewport */
   #cameraWrapper { min-height: 12vh; display: flex; align-items: center; justify-content: center; z-index: 3; position: relative; padding-top: 18px; }
-    #cameraToggle { font-size: 16px; padding: 10px 14px; }
 
     /* Container holds the video and canvas layers; center the media inside it */
   /* Container is pushed down so it does not overlap the title/button */
@@ -52,7 +51,7 @@
 
   <!-- Minimal interaction: only the camera button is visible -->
   <div id="cameraWrapper">
-    <button id="cameraToggle" class="camera-btn link-style" disabled>Enable Camera</button>
+    <!-- Camera is auto-started; the enable button was removed -->
     <!-- Back to gallery (same look & placement as About page) -->
     <a href="index.html?from=interaction" class="back-to-gallery">Back to gallery</a>
   </div>
